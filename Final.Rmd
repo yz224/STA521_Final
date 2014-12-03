@@ -43,26 +43,65 @@ detect colinearity
 lm.1 <- lm(COST~.,data)
 vif(lm.1)
 ```
-no colinearity exists.
+all vif is less than 10, no colinearity exists.
 
-data transformation
+detect outliers
 ```{r}
-logMM <- log(data$MM)
-data1 <- data
-data1$MM <- logMM
+par(mfrow=c(2,2))
+plot(lm.1)
+```
+from leverage plot we see that point 19 might have high influence to the model
+
+??try to leave out point 19
+```{r}
+data1 <- data[-19,]
+lm.11 <- lm(COST~.,data1)
+plot(lm.11)
+summary(lm.11)
+summary(lm.1)
+```
+
+try BMA
+```{r}
+library(BMA)
+
+BMA <- MC3.REG(all.y = data$COST, 
+        all.x = matrix(c(data$RXPM,data$GS,data$RI,data$COPAY,data$AGE,data$F,log(data$MM)),nrow=29),
+        num.its = 10000, outliers = TRUE)
+summary(BMA)
+par(mfrow=c(1,1))
+image(BMA)
 ```
 
 
+
+log MM
 ```{r}
-lm.2 <- lm(COST~.,data=data1)
+lm.2 <- lm(COST~ RXPM + GS + RI + COPAY + AGE + F + log(MM),data=data)
 anova(lm.1,lm.2)
 ```
+It is significant to do logrithm to MM
 
 try gam
-
 ```{r}
-gam.1 <- gam(COST ~ RXPM + s(GS,4) + RI + COPAY + AGE + F + MM,data=data1)
+gam.1 <- gam(COST ~ poly(RXPM,3) + GS + RI + COPAY + AGE + F + log(MM),data=data)
 summary(gam.1)
 anova(lm.1,lm.2,gam.1)
 ```
+
+
+
+try interaction
+```{r}
+lm.3 <- lm(COST~ RXPM + GS + RI + COPAY + AGE + F + log(MM) ,
+           data=data)
+vif(lm.3)
+summary(lm.3)
+
+anova(lm.1,lm.2,lm.3)
+```
+
+
+
+
 
