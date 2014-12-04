@@ -10,8 +10,12 @@ output: html_document
 library(gam)
 library(MASS)
 library(car)
+library(ISLR)
+library(leaps)
+library(glmnet)
 data <- read.table("costs.txt",header=T)
 data <- data[1:8]
+
 
 panel.hist <- function(x, ...)
 {
@@ -42,8 +46,12 @@ detect colinearity
 ```{r}
 lm.1 <- lm(COST~.,data)
 vif(lm.1)
+
+lm.2 <- lm(COST~ RXPM + GS + RI + AGE + F + MM,data=data)
+summary(lm.1)
+summary(lm.2)
 ```
-all vif is less than 10, no colinearity exists.
+RI and COPAY may have colinearity exists.
 
 detect outliers
 ```{r}
@@ -101,7 +109,51 @@ summary(lm.3)
 anova(lm.1,lm.2,lm.3)
 ```
 
+LASSO
+```{r}
+data[,8] <- log(data[,8])
+data <- data[-19,]
+data <- data[,-5]
+y <- data[,1]
+x <- as.matrix(data[,2:7])
+train=sample(1:nrow(x), nrow(x)-9)
+test=(-train)
 
+grid=10^seq(10,-3,length=100)
+lasso.mod <- glmnet(x[train,],y[train],alpha=1)
+plot(lasso.mod)
 
+cv.out <- cv.glmnet(x[train,],y[train],alpha=1)
+plot(cv.out)
+bestlam <- cv.out$lambda.min
+
+out <- glmnet(x,y,alpha=1,lambda=grid)
+lasso.coef = predict(out,type="coefficients",s=bestlam)
+lasso.coef
+```
+
+```{r}
+regfit.full=regsubsets(COST~.,data)
+reg.summary<-summary(regfit.full)
+reg.summary$rsq
+par(mfrow=c(2,2))
+plot(reg.summary$rss ,xlab="Number of Variables ",ylab="RSS",
+type="l")
+plot(reg.summary$adjr2 ,xlab="Number of Variables ",
+ylab="Adjusted RSq",type="l")
+plot(reg.summary$cp ,xlab="Number of Variables ",ylab="Cp", type='l')
+
+points(which.min(reg.summary$cp ),reg.summary$cp [which.min(reg.summary$cp )],col="red",cex=2,pch=20)
+plot(reg.summary$bic ,xlab="Number of Variables ",ylab="BIC",type='l')
+
+points(which.min(reg.summary$bic ),reg.summary$bic [which.min(reg.summary$bic )],col="red",cex=2,pch=20)
+
+plot(regfit.full,scale="r2")
+plot(regfit.full,scale="adjr2") 
+plot(regfit.full,scale="Cp")
+ plot(regfit.full,scale="bic")
+
+coef(regfit.full ,2)
+```
 
 
