@@ -15,9 +15,23 @@ summary(gam.3)
 
 ```{r}
 newdata=test
+newdata$RI=newdata$RI-mean(newdata$RI)
+newdata$MM=newdata$MM-mean(newdata$MM)
 newdata$RI2=newdata$RI^2
 newdata$MM2=newdata$MM^2
+```
 
+for collinearity, outlier, etc
+
+```{r}
+pairs(newdata,lower.panel = panel.smooth, upper.panel = panel.cor, diag.panel = panel.hist)
+lm.3 <- lm(COST~.,newdata)
+plot(lm.3)
+vif(lm.3)
+summary(lm.3)
+```
+
+```{r}
 regfit.full2=regsubsets(COST~.,newdata)
 reg.summary2<-summary(regfit.full2)
 reg.summary2$rsq
@@ -39,7 +53,7 @@ plot(regfit.full2,scale="adjr2")
 plot(regfit.full2,scale="Cp")
 plot(regfit.full2,scale="bic")
 
-coef(regfit.full2 ,7)
+coef(regfit.full2 ,5)
 ```
 
 ```{r}
@@ -48,13 +62,13 @@ summary(regfit.fwd)
 which.min(summary(regfit.fwd)$cp)
 which.min(summary(regfit.fwd)$bic)
 which.max(summary(regfit.fwd)$adjr2)
-summary(regfit.bwd)$which[7,]
+summary(regfit.bwd)$which[5,]
 regfit.bwd <- regsubsets(COST~.,data=newdata,nvmax=9,method="backward")
 summary(regfit.bwd)
 which.min(summary(regfit.bwd)$cp)
 which.min(summary(regfit.bwd)$bic)
 which.max(summary(regfit.bwd)$adjr2)
-summary(regfit.bwd)$which[7,]
+summary(regfit.bwd)$which[5,]
 ```
 
 
