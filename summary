@@ -6,9 +6,6 @@ The scatter plots of each predictor versus COST have no apparent curvature so th
   COST=beta0+beta1*RXPM+beta2*GS^2+beta3*sqrt(RI)+…….懒得写了
 Residuals are homoscedasticity. Predicted values are normally distributed. Although there exist several outliers, all cook’s distances are less than 0.5 showing that there is no influential observation. Thus, there is no need to remove any single observations.
 
-Then we test for possible polynomials and interactions in the regression. Using GAM, we find that sqrt(RI), its second power (RI) are significant in predicting COST. Thus, we also consider these two variables into our model. However, because of the multicollinearity between the two variables and their polynomial terms, we use the deviation between the variable and its mean instead, i.e. RInew=sqrt(RI)-mean(sqrt(RI)), RI2new=(RInew)2. The polynomials are still significant in the linear model. We haven’t found any significant interaction terms. Now, the full model becomes
+Then we test for possible polynomials and interactions in the regression. Using GAM, we find that sqrt(RI), its second power (RI) are significant in predicting COST. Thus, we also consider these two variables into our model. However, because of the collinearity between sqrt(RI) and RI (correlation=0.969), we use the deviation between the variable and its mean instead, i.e. RInew=sqrt(RI)-mean(sqrt(RI)), RI2new=(RInew)2. The polynomial is still significant in the linear model and correlation between sqrt(RI) and RI reduces to 0.192. We haven’t found any significant interaction terms. Now, the full model becomes
 	COST=xxxxxxxxxxxxxxx
-
-
-Use our new data set, we test for the effect of GS and RI on COST using several different ways. The results from all methods agree that GS and RI have a negative effect on COST. 
-(1) Data
+There is no apparent pattern in residuals. The predicted values are roughly normally distributed. There exists no influential point as all cook’s distances are less than 0.5. We also check for multicollinearity, and conclude there are no multicollineared predictors.
