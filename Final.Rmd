@@ -39,70 +39,74 @@ panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
 }
 
 pairs(data,lower.panel = panel.smooth, upper.panel = panel.cor, diag.panel = panel.hist)
+
+lm.1 <- lm(COST~.,data)
+plot(lm.1)
 ```
-It seems that there exist non-linearity in variable RXPM. Colinearity in Copay, RI and Age. Also, MM seem to be a much larger scale of data than others, so we can take logrithm to it.
+
+From the histogram of each variable in the diagonal, we can see that some varialbes don't follow normal distribution. We want to find out the best transformation of each variable.
+
+From plot of full linear model, there may exist influential outliers (19) that has cook's distance > 1
+
+From the correlation matrix, there may exist colinearity between Copay and RI
+
+Using unconditional box cox transformations for independent variable. Then, transform response accordingly. 
+
+```{r}
+p1 <- powerTransform(data)
+summary(p1)
+coef(p1,round=T)
+test=data
+test$GS=test$GS^2
+test$RI=sqrt(test$RI)
+test$COPAY=log(test$COPAY)
+test$MM=sqrt(test$MM)
+p11 <- powerTransform(test)
+p2 <-powerTransform(lm(COST~., test))
+summary(p11)
+summary(p2)
+coef(p11,round=T)
+coef(p2,round=T)
+pairs(test,lower.panel = panel.smooth, upper.panel = panel.cor, diag.panel = panel.hist)
+```
 
 detect colinearity
 ```{r}
-lm.1 <- lm(COST~.,data)
-vif(lm.1)
-
-lm.2 <- lm(COST~ RXPM + GS + RI + AGE + F + MM,data=data)
-summary(lm.1)
+lm.2 <- lm(COST~.,data=test)
 summary(lm.2)
+vif(lm.2)
 ```
-RI and COPAY may have colinearity exists.
+no colinearity exists
 
 detect outliers
 ```{r}
 par(mfrow=c(2,2))
 plot(lm.1)
 ```
-from leverage plot we see that point 19 might have high influence to the model
-
-??try to leave out point 19
-```{r}
-data1 <- data[-19,]
-lm.11 <- lm(COST~.,data1)
-plot(lm.11)
-summary(lm.11)
-summary(lm.1)
-```
+After transformation, although there are some outliers, there is no observations being influential (all cook's distance < 0.5). 
 
 try BMA
 ```{r}
 library(BMA)
 
-BMA <- MC3.REG(all.y = data$COST, 
-        all.x = matrix(c(data$RXPM,data$GS,data$RI,data$COPAY,data$AGE,data$F,log(data$MM)),nrow=29),
+BMA <- MC3.REG(all.y = test$COST, 
+        all.x = matrix(c(test$RXPM,test$GS,test$RI,test$COPAY,test$AGE,test$F,log(test$MM)),nrow=29),
         num.its = 10000, outliers = TRUE)
 summary(BMA)
-par(mfrow=c(1,1))
-image(BMA)
 ```
-
-
-
-log MM
-```{r}
-lm.2 <- lm(COST~ RXPM + GS + RI + COPAY + AGE + F + log(MM),data=data)
-anova(lm.1,lm.2)
-```
-It is significant to do logrithm to MM
+More certain that no outliers.
 
 try gam
 ```{r}
-gam.1 <- gam(COST ~ poly(RXPM,3) + GS + RI + COPAY + AGE + F + log(MM),data=data)
+gam.1 <- gam(COST ~ RXPM + GS + s(RI,2) + COPAY + AGE + F + MM,data=test)
 summary(gam.1)
 anova(lm.1,lm.2,gam.1)
 ```
 
-
-
 try interaction
 ```{r}
-lm.3 <- lm(COST~ RXPM + GS + RI + COPAY + AGE + F + log(MM) ,
-           data=data)
+lm.3 <- lm(COST~ RXPM + GS + RI + COPAY + AGE + F + MM ,
+           data=test)
 vif(lm.3)
 summary(lm.3)
 
@@ -111,15 +115,11 @@ anova(lm.1,lm.2,lm.3)
 
 LASSO
 ```{r}
-data[,8] <- log(data[,8])
-data <- data[-19,]
-data <- data[,-5]
-y <- data[,1]
-x <- as.matrix(data[,2:7])
+y <- test[,1]
+x <- as.matrix(test[,2:8])
 train=sample(1:nrow(x), nrow(x)-9)
-test=(-train)
 
-grid=10^seq(10,-3,length=100)
+grid=10^seq(10,-2,length=100)
 lasso.mod <- glmnet(x[train,],y[train],alpha=1)
 plot(lasso.mod)
 
@@ -133,7 +133,7 @@ lasso.coef
 ```
 
 ```{r}
-regfit.full=regsubsets(COST~.,data)
+regfit.full=regsubsets(COST~.,test)
 reg.summary<-summary(regfit.full)
 reg.summary$rsq
 par(mfrow=c(2,2))
@@ -148,52 +148,19 @@ plot(reg.summary$bic ,xlab="Number of Variables ",ylab="BIC",type='l')
 
 points(which.min(reg.summary$bic ),reg.summary$bic [which.min(reg.summary$bic )],col="red",cex=2,pch=20)
 
-<<<<<<< HEAD
 plot(regfit.full,scale="r2")
 plot(regfit.full,scale="adjr2") 
 plot(regfit.full,scale="Cp")
  plot(regfit.full,scale="bic")
 
-coef(regfit.full ,2)
+coef(regfit.full ,3)
 ```
-=======
-Try transformations
->>>>>>> 542bc48fd45dc11b9ad460c195bf0be9f16ae67c
+
 
 ```{r}
+par(mfrow=c(1,1))
 lapply(1:8,function(x) hist(data[,x], main=names(data)[x],xlab=names(data)[x]))
 ```
 
-From the histogram of each variable, we can see that some varialbes don't follow normal distribution. We want to find out the best transformation of each variable.
 
-
-Using unconditional box cox transformations for independent variable. Then, transform response accordingly. 
-
-```{r}
-powerTransform(data)$round
-summary(powerTransform(data))
-test=data
-test$GS=test$GS^2
-test$RI=sqrt(test$RI)
-test$COPAY=log(test$COPAY)
-test$MM=sqrt(test$MM)
-summary(powerTransform(lm(COST~., test)))
-summary(powerTransform(test))
-pairs(test,lower.panel = panel.smooth, upper.panel = panel.cor, diag.panel = panel.hist)
-```
-
-collinearity
-
-```{r}
-lm.2 <- lm(COST~.,test)
-vif(lm.2)
-```
-
-detect outliers
-```{r}
-par(mfrow=c(2,2))
-plot(lm.2)
-```
-
-After transformation, although there are some outliers, there is no observations being influential (all cook's distance < 0.5). 
 
