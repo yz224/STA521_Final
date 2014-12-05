@@ -1,0 +1,7 @@
+In this project, we want to justify whether the Generic Substitute (GS) and Restriction Index (RI) are efficient in controlling drugs costs. We analyzed collected data of “COST” (response) and related seven potential explanatory variables (including GS and RI) with several quantitative steps with different methods. And we drew a conclusion that ….
+
+The histograms of all variables show skewness for GS, RI, COPAY and MM. Since in regression, all the independent variables need to be normally distributed. We use best Box-Cox transformation for unconditional variables for each independent variable, and transform response variable accordingly. We will use GS^2, sqrt(RI), log(COPAY), and sqrt(MM) in our analysis. All other variables will stay the same. 
+
+Then we test for possible polynomials and interactions in the regression. Using GAM, we find that sqrt(RI), sqrt(MM), and their second powers respectively are significant in predicting COST. Thus, we also consider these two variables into our model. However, because of the multicollinearity between the two variables and their square, we use the deviation between the variable and its mean instead, i.e. MMnew=sqrt(MM)-mean(sqrt(MM)), MM2new=(MMnew)2. The polynomials are still significant in the linear model.
+
+Use our new data set, we test for the effect of GS and RI on COST using several different ways. The results from all methods agree that GS and RI have a negative effect on COST. 
