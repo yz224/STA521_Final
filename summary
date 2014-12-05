@@ -1,7 +1,14 @@
 In this project, we want to justify whether the Generic Substitute (GS) and Restriction Index (RI) are efficient in controlling drugs costs. We analyzed collected data of “COST” (response) and related seven potential explanatory variables (including GS and RI) with several quantitative steps with different methods. And we drew a conclusion that ….
 
-The histograms of all variables show skewness for GS, RI, COPAY and MM. Since in regression, all the independent variables need to be normally distributed. We use best Box-Cox transformation for unconditional variables for each independent variable, and transform response variable accordingly. We will use GS^2, sqrt(RI), log(COPAY), and sqrt(MM) in our analysis. All other variables will stay the same. 
+The histograms of all variables show skewness in GS, RI, COPAY and MM. Since in regression, all the independent variables need to be normally distributed, we use best Box-Cox transformation for each independent variable, and transform response variable accordingly. We will use GS^2, sqrt(RI), log(COPAY), and sqrt(MM) in our analysis. All other variables will stay the same. 
 
-Then we test for possible polynomials and interactions in the regression. Using GAM, we find that sqrt(RI), sqrt(MM), and their second powers respectively are significant in predicting COST. Thus, we also consider these two variables into our model. However, because of the multicollinearity between the two variables and their square, we use the deviation between the variable and its mean instead, i.e. MMnew=sqrt(MM)-mean(sqrt(MM)), MM2new=(MMnew)2. The polynomials are still significant in the linear model.
+The scatter plots of each predictor versus COST have no apparent curvature so that we can predict COST using linear model. We fit a linear model of COST on all independent variables and check conditions. The regression function is:
+  COST=beta0+beta1*RXPM+beta2*GS^2+beta3*sqrt(RI)+…….懒得写了
+Residuals are homoscedasticity. Predicted values are normally distributed. Although there exist several outliers, all cook’s distances are less than 0.5 showing that there is no influential observation. Thus, there is no need to remove any single observations.
+
+Then we test for possible polynomials and interactions in the regression. Using GAM, we find that sqrt(RI), its second power (RI) are significant in predicting COST. Thus, we also consider these two variables into our model. However, because of the multicollinearity between the two variables and their polynomial terms, we use the deviation between the variable and its mean instead, i.e. RInew=sqrt(RI)-mean(sqrt(RI)), RI2new=(RInew)2. The polynomials are still significant in the linear model. We haven’t found any significant interaction terms. Now, the full model becomes
+	COST=xxxxxxxxxxxxxxx
+
 
 Use our new data set, we test for the effect of GS and RI on COST using several different ways. The results from all methods agree that GS and RI have a negative effect on COST. 
+(1) Data
