@@ -1,0 +1,74 @@
+```{r}
+gam.1 <- gam(COST ~ RXPM + GS + poly(RI,2) + COPAY + AGE + F + MM,data=test)
+gam.3 <- gam(COST ~ RXPM + GS + poly(RI,2) + COPAY + AGE + F + poly(MM,2),data=test)
+anova(lm.1,lm.2,gam.1,gam.3)
+```
+
+```{r}
+lmpoly=lm(COST ~ RXPM + GS + poly(RI,2) + COPAY + AGE + F + poly(MM,2),data=test)
+gam.3 <- lm(COST ~ RXPM + GS + poly(RI,2) + COPAY + AGE + F + poly(MM,2),data=test)
+anova(lmpoly,gam.3)
+summary(gam.3)
+```
+
+
+
+```{r}
+newdata=test
+newdata$RI=newdata$RI-mean(newdata$RI)
+newdata$MM=newdata$MM-mean(newdata$MM)
+newdata$RI2=newdata$RI^2
+newdata$MM2=newdata$MM^2
+```
+
+for collinearity, outlier, etc
+
+```{r}
+pairs(newdata,lower.panel = panel.smooth, upper.panel = panel.cor, diag.panel = panel.hist)
+lm.3 <- lm(COST~.,newdata)
+plot(lm.3)
+vif(lm.3)
+summary(lm.3)
+```
+
+```{r}
+regfit.full2=regsubsets(COST~.,newdata)
+reg.summary2<-summary(regfit.full2)
+reg.summary2$rsq
+par(mfrow=c(2,2))
+plot(reg.summary2$rss ,xlab="Number of Variables ",ylab="RSS",
+type="l")
+plot(reg.summary2$adjr2 ,xlab="Number of Variables ",
+ylab="Adjusted RSq",type="l")
+plot(reg.summary2$cp ,xlab="Number of Variables ",ylab="Cp", type='l')
+
+points(which.min(reg.summary2$cp ),reg.summary2$cp [which.min(reg.summary2$cp )],col="red",cex=2,pch=20)
+plot(reg.summary2$bic ,xlab="Number of Variables ",ylab="BIC",type='l')
+
+points(which.min(reg.summary2$bic ),reg.summary2$bic [which.min(reg.summary2$bic )],col="red",cex=2,pch=20)
+
+par(mfrow=c(1,1))
+plot(regfit.full2,scale="r2")
+plot(regfit.full2,scale="adjr2") 
+plot(regfit.full2,scale="Cp")
+plot(regfit.full2,scale="bic")
+
+coef(regfit.full2 ,5)
+```
+
+```{r}
+regfit.fwd <- regsubsets(COST~.,data=newdata,nvmax=9,method="forward")
+summary(regfit.fwd)
+which.min(summary(regfit.fwd)$cp)
+which.min(summary(regfit.fwd)$bic)
+which.max(summary(regfit.fwd)$adjr2)
+summary(regfit.bwd)$which[5,]
+regfit.bwd <- regsubsets(COST~.,data=newdata,nvmax=9,method="backward")
+summary(regfit.bwd)
+which.min(summary(regfit.bwd)$cp)
+which.min(summary(regfit.bwd)$bic)
+which.max(summary(regfit.bwd)$adjr2)
+summary(regfit.bwd)$which[5,]
+```
+
+
