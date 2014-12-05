@@ -240,9 +240,9 @@ plot(prunemodel)
 text(prunemodel,pretty=0)
 
 yhat.1=predict(treemodel ,newdata=newdata.test)
-treemodel.test=newdata[-train ,"COST"]
-plot(yhat.1,treemodel.test)
-mean((yhat.1-treemodel.test)^2)
+
+plot(yhat.1,y.test)
+mean((yhat.1-y.test)^2)
 ```
 
 ```{r}
@@ -250,10 +250,21 @@ set.seed(1)
 bagmodel=randomForest(COST~.,newdata,mtry=9)
 summary(bagmodel)
 importance(bagmodel)
+
+yhat.bag = predict(bagmodel ,newdata.test)
+plot(yhat.bag, y.test)
+abline(0,1)
+mean((yhat.bag-y.test)^2)
+```
+
+```{r}
+rfmodel=randomForest(COST~.,data=newdata,subset=train,mtry=4,importance =TRUE)
+yhat.rf = predict(rfmodel ,newdata.test)
+mean((yhat.rf-y.test)^2)
 ```
 
 
--------------------
+
 try BMA
 ```{r}
 library(BMA)
