@@ -60,7 +60,7 @@ test$GS=test$GS^2
 test$RI=sqrt(test$RI)
 test$COPAY=log(test$COPAY)
 test$MM=sqrt(test$MM)
-train=sample(1:nrow(x), nrow(x)-9)
+train=sample(1:nrow(data), nrow(data)-9)
 set.seed(100)
 test.train=test[train,]
 test.test=test[-train]
@@ -95,9 +95,10 @@ try BMA
 library(BMA)
 
 BMA <- MC3.REG(all.y = test$COST, 
-        all.x = matrix(c(test$RXPM,test$GS,test$RI,test$COPAY,test$AGE,test$F,log(test$MM)),nrow=29),
+        all.x = matrix(c(test$RXPM,test$GS,test$RI,test$COPAY,test$AGE,test$F,test$MM),nrow=29),
         num.its = 10000, outliers = TRUE)
 summary(BMA)
+
 
 ```
 
