@@ -222,6 +222,37 @@ MSE.lasso
 MSE.ridge
 ```
 
+tree & badge
+```{r}
+library(tree)
+library(randomForest)
+treemodel=tree(COST~., newdata.train)
+summary(treemodel)
+plot(treemodel)
+text(treemodel,pretty=0)
+
+cvmodel=cv.tree(treemodel)
+plot(cvmodel$dev~cvmodel$size,type="b")
+plot(cvmodel$dev~cvmodel$k,type="b")
+
+prunemodel=prune.tree(treemodel,best=4)
+plot(prunemodel)
+text(prunemodel,pretty=0)
+
+yhat.1=predict(treemodel ,newdata=newdata.test)
+treemodel.test=newdata[-train ,"COST"]
+plot(yhat.1,treemodel.test)
+mean((yhat.1-treemodel.test)^2)
+```
+
+```{r}
+set.seed(1)
+bagmodel=randomForest(COST~.,newdata,mtry=9)
+summary(bagmodel)
+importance(bagmodel)
+```
+
+
 -------------------
 try BMA
 ```{r}
