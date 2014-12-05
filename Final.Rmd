@@ -108,6 +108,12 @@ set.seed(100)
 train=sample(1:nrow(newdata), nrow(newdata)-9)
 newdata.train=newdata[train,]
 newdata.test=newdata[-train,]
+y <- newdata[,1]
+x <- as.matrix(newdata[,-1])
+y.train <- newdata.train[,1]
+x.train <- as.matrix(newdata.train[,-1])
+y.test <- newdata.test[,1]
+x.test <- as.matrix(newdata.test[,-1])
 ```
 
 for collinearity, outlier, etc
@@ -179,12 +185,7 @@ try LASSO and RIDGE
 ```{r}
 #LASSO
 par(mfrow=c(1,1))
-y <- newdata[,1]
-x <- as.matrix(newdata[,-1])
-y.train <- newdata.train[,1]
-x.train <- as.matrix(newdata.train[,-1])
-y.test <- newdata.test[,1]
-x.test <- as.matrix(newdata.test[,-1])
+
 
 grid=10^seq(10,-3,length=1000)
 lasso.mod <- glmnet(x.train,y.train,alpha=1)
