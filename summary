@@ -8,4 +8,12 @@ Residuals are homoscedasticity. Predicted values are normally distributed. Altho
 
 Then we test for possible polynomials and interactions in the regression. Using GAM, we find that sqrt(RI), its second power (RI) are significant in predicting COST. Thus, we also consider these two variables into our model. However, because of the collinearity between sqrt(RI) and RI (correlation=0.969), we use the deviation between the variable and its mean instead, i.e. RInew=sqrt(RI)-mean(sqrt(RI)), RI2new=(RInew)2. The polynomial is still significant in the linear model and correlation between sqrt(RI) and RI reduces to 0.192. We haven’t found any significant interaction terms. Now, the full model becomes
 	COST=xxxxxxxxxxxxxxx
-Using some algebra, we know that the coefficient on RI is beta8, and coefficient on sqrt(RI) is beta3- beta8*mean(sqrt(RI)). There is no apparent pattern in residual plot. The predicted values are roughly normally distributed. There exists no influential point as all cook’s distances are less than 0.5. We also check for multicollinearity, and conclude there are no multicollineared predictors.
+	Using some algebra, we know that the coefficient on RI is beta8, and coefficient on sqrt(RI) is beta3- beta8*mean(sqrt(RI)). There is no apparent pattern in residual plot. The predicted values are roughly normally distributed. There exists no influential point as all cook’s distances are less than 0.5. We also check for multicollinearity, and conclude there are no multicollineared predictors.
+
+Use our new data set, we test for the effect of GS and RI on COST using several different ways. The results from all methods agree that GS and RI have a negative effect on COST. 
+(1)	Stepwise Selection & Best Subsets
+Forward selection, backward selection, and best subsets method yield the same best model: COST is depended on RXPM, GS, and RInew2. Since the quadratic term RInew2 is included, we also need to include RInew in the model. The model using these method is 
+COST=0.0231*RXPM-1.85*10^(-4)*GS-0.0126*RInew+1.644*RInew2
+After some algebraic steps, the model becomes
+COST=0.0231*RXPM-1.85*10^(-4)*GS-0.0732*sqrt(RI)+1.644*RI
+Holding other variables the same, we make a plot of how COST change with different values of RI. We can see that at the COST first decreases and then increases as RI increase, and RI=5 the sign of first derivative of the curve changes. The maximum value of RI such that RI has a decrease effect on COST is when RI=19.
