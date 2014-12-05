@@ -13,6 +13,8 @@ library(car)
 library(ISLR)
 library(leaps)
 library(glmnet)
+library(boot)
+library(gamelass)
 data <- read.table("costs.txt",header=T)
 data <- data[1:8]
 
@@ -106,19 +108,15 @@ More certain that no outliers.
 
 try gam
 ```{r}
-gam.1 <- gam(COST ~ RXPM + GS + s(RI,2) + COPAY + AGE + F + MM,data=test)
+gam.1 <- glm(COST ~ RXPM + GS + poly(RI,4) + COPAY + AGE + F + MM,data=test)
 summary(gam.1)
-anova(lm.1,lm.2,gam.1)
-```
-
-try interaction
-```{r}
-lm.3 <- lm(COST~ RXPM + GS + RI + COPAY + AGE + F + MM ,
-           data=test)
-vif(lm.3)
-summary(lm.3)
-
-anova(lm.1,lm.2,lm.3)
+anova(lm.1,gam.1)
+cv.error=rep(0,5)
+for (i in 1:5){
+  glm.fit=glm(COST ~ RXPM + GS + poly(RI,i) + COPAY + AGE + F + MM,data=test)
+  cv.error[i]=cv.glm(test,glm.fit)$delta[1]
+  }
+cv.error
 ```
 
 LASSO
