@@ -101,9 +101,9 @@ to avoid colinearity of poly terms, use z=x-mean(x)
 ```{r}
 newdata=test
 newdata$RI=newdata$RI-mean(newdata$RI)
-newdata$MM=newdata$MM-mean(newdata$MM)
+#newdata$MM=newdata$MM-mean(newdata$MM)
 newdata$RI2=newdata$RI^2
-newdata$MM2=newdata$MM^2
+#newdata$MM2=newdata$MM^2
 set.seed(100)
 train=sample(1:nrow(newdata), nrow(newdata)-9)
 newdata.train=newdata[train,]
@@ -165,15 +165,12 @@ which.min(summary(regfit.bwd)$bic)
 which.max(summary(regfit.bwd)$adjr2)
 summary(regfit.bwd)$which[5,]
 
-coef(regfit.full2 ,5)
-coef(regfit.fwd ,5)
-coef(regfit.bwd ,5)
+coef(regfit.full2 ,3)
+coef(regfit.fwd ,3)
+coef(regfit.bwd ,3)
 # The result of full subsets, forward selection and backward selection are same.
-lm.subset <- glm(COST ~ RXPM + GS + AGE + RI2 + MM2 + RI + MM, data=newdata.train)
+lm.subset <- lm(COST ~ RXPM + GS + RI2 + RI , data=newdata.train)
 summary(lm.subset)
-
-cv.err.st <- cv.glm(newdata.train,lm.subset)
-cv.err.st$delta[1]
 
 pred.st <- predict(lm.subset,newdata.test)
 
@@ -214,7 +211,6 @@ ridge.coef = predict(out.r,type="coefficients",s=bestlam.r)
 cv.err.ridge = cv.rid$cvm[cv.rid$lambda==cv.rid$lambda.min]
 ridge.pred <- predict(out.r,s=bestlam.r,x.test)
 MSE.ridge <- mean((ridge.pred-y[-train])^2)
-
 
 lasso.coef
 ridge.coef
@@ -264,17 +260,17 @@ yhat.rf = predict(rfmodel ,newdata.test)
 mean((yhat.rf-y.test)^2)
 ```
 
-
-
 try BMA
 ```{r}
 library(BMA)
-
-BMA <- MC3.REG(all.y = test$COST, 
-        all.x = matrix(c(test$RXPM,test$GS,test$RI,test$COPAY,test$AGE,test$F,test$MM),nrow=29),
-        num.its = 10000, outliers = TRUE)
+library(BAS)
+BMA <- MC3.REG(all.y = newdata.train$COST, 
+        all.x = matrix(c(newdata.train$RXPM,newdata.train$GS,newdata.train$RI,
+                         newdata.train$AGE,newdata.train$F,newdata.train$MM,
+                         newdata.train$RI2,newdata.train$MM2),nrow=20),
+        num.its = 50000, outliers = TRUE)
 summary(BMA)
 
-
+#pred.BMA <- predict(BMA,newdata.test)
 ```
 
