@@ -264,13 +264,9 @@ try BMA
 ```{r}
 library(BMA)
 library(BAS)
-BMA <- MC3.REG(all.y = newdata.train$COST, 
-        all.x = matrix(c(newdata.train$RXPM,newdata.train$GS,newdata.train$RI,
-                         newdata.train$AGE,newdata.train$F,newdata.train$MM,
-                         newdata.train$RI2,newdata.train$MM2),nrow=20),
-        num.its = 50000, outliers = TRUE)
+BMA <- bicreg(x = x.train,y = y.train,)
 summary(BMA)
-
-#pred.BMA <- predict(BMA,newdata.test)
+pred.BMA = predict(BMA,newdata.test)$mean
+mean((pred.BMA-y.test)^2)
 ```
 
