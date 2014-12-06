@@ -54,6 +54,6 @@ BMA	0.0066
 Conclusion
 Using the given data, we conclude that GS has negative effect on COST, and small RI is associated with lower COST, while large RI is associated with higher COST. Thus, in order to reduce the daily prescription drug cost, the health insurance company should use higher percentage of general substitution, and control Restrictiveness Index in a low range within 0 to 15.6 (a conservative interval such that for within this range, all models agree that RI has negative effect on drug cost), and the ideal Restrictive Index to reduce drug cost is between 3.9 and 5.
 
-Discussion
-
-
+Discussion and further research
+When doing inference using the data set, our biggest problem is skewness of variables in a small data set. With small data set, the coefficients have large standard error, and it is easy to have non-representative data so that we produce the biased model. Skewness will make linear models not suitable to use and also make the reference hard to interpret. 
+Another concern is that the R^2 is only 0.73 in our full model, showing there might be other important variables that are not included in the data. If we have these additional parameters, we may have better prediction of COST.
