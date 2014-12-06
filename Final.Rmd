@@ -178,6 +178,17 @@ MSE.st <- mean((y[-train]-pred.st)^2)
 MSE.st
 ```
 
+plot for linear model
+
+```{r}
+ri=seq(0,100)
+cost=-0.0732*sqrt(ri)+0.01644*ri
+plot(cost~ri)
+max(ri[cost<0])
+ri[which.min(cost)]
+```
+
+
 try LASSO and RIDGE
 ```{r}
 #LASSO
@@ -217,6 +228,23 @@ ridge.coef
 
 MSE.lasso
 MSE.ridge
+```
+
+
+plot for LASSO
+```{r}
+costlas=-0.0534*sqrt(ri)+0.0135*ri
+plot(costlas~ri)
+max(ri[costlas<0])
+ri[which.min(costlas)]
+```
+
+plot for ridge
+```{r}
+costrid=-0.0618*sqrt(ri)+0.0150*ri
+plot(costrid~ri)
+max(ri[costrid<0])
+ri[which.min(costrid)]
 ```
 
 tree & badge
