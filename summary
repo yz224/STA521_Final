@@ -1,22 +1,22 @@
 In this project, we want to justify whether the Generic Substitute (GS) and Restriction Index (RI) are efficient in controlling drugs costs. We explore the relationship between COST and seven predictors (including GS and RI) using the data from 29 health plans.
 
-The histograms of all variables show skewness in GS, RI, COPAY and MM. Since in regression, all the independent variables need to be normally distributed, we use best Box-Cox transformation for each independent variable, and transform response variable accordingly. We will use GS^2, sqrt(RI), log(COPAY), and sqrt(MM) in our analysis. Log likelihood ratio test shows that each of these transformations is necessary at 0.05 level. All other variables will stay the same. 
+The histograms of all variables show skewness in GS, RI, COPAY and MM (Figure 1). Since in regression, all the independent variables need to be normally distributed, we use best Box-Cox transformation for each independent variable, and transform response variable accordingly. We will use GS^2, sqrt(RI), log(COPAY), and sqrt(MM) in our analysis. Log likelihood ratio test shows that each of these transformations is necessary at 0.05 level. All other variables will stay the same. 
 
-The scatter plots of each predictor versus COST have no apparent curvature so that we can predict COST using linear model. We fit a linear model of COST on all independent variables and check conditions. The regression function is:
+The scatter plots of each predictor versus COST have no apparent curvature so that we can predict COST using linear model (Figure 2). We fit a linear model of COST on all independent variables (Table 1) and check conditions (Figure 3). The regression function is:
   COST=beta0+beta1*RXPM+beta2*GS^2+beta3*sqrt(RI)+…….懒得写了
 Residuals are homoscedasticity. Predicted values are normally distributed. Although there exist several outliers, all cook’s distances are less than 0.5 showing that there is no influential observation. Thus, there is no need to remove any single observations.
 
-Then we test for possible polynomials and interactions in the regression. Using GAM, we find that sqrt(RI), its second power (RI) are significant in predicting COST. Thus, we also consider these two variables into our model. However, because of the collinearity between sqrt(RI) and RI (correlation=0.969), we use the deviation between the variable and its mean instead, i.e. RInew=sqrt(RI)-mean(sqrt(RI)), RI2new=(RInew)2. The polynomial is still significant in the linear model and correlation between sqrt(RI) and RI reduces to 0.192. We haven’t found any significant interaction terms. Now, the full model becomes
-	COST=xxxxxxxxxxxxxxx
-	Using some algebra, we know that the coefficient on RI is beta8, and coefficient on sqrt(RI) is beta3- beta8*mean(sqrt(RI)). There is no apparent pattern in residual plot. The predicted values are roughly normally distributed. There exists no influential point as all cook’s distances are less than 0.5. We also check for multicollinearity, and conclude there are no multicollineared predictors.
+Then we test for possible polynomials and interactions in the regression. Using GAM, we find that sqrt(RI), its second power (RI) are significant in predicting COST. Thus, we also consider these two variables into our model. However, because of the collinearity between sqrt(RI) and RI (correlation=0.969), we use the deviation between the variable and its mean instead, i.e. RInew=sqrt(RI)-mean(sqrt(RI)), RI2new=(RInew)2. The polynomial is still significant in the linear model and correlation between sqrt(RI) and RI reduces to 0.192 (Figure 4). We haven’t found any significant interaction terms. Now, the full model becomes
+	COST=xxxxxxxxxxxxxxx (Table 2)
+	Using some algebra, we know that the coefficient on RI is beta8, and coefficient on sqrt(RI) is beta3- beta8*mean(sqrt(RI)). There is no apparent pattern in residual plot (Figure 5). The predicted values are roughly normally distributed. There exists no influential point as all cook’s distances are less than 0.5. We also check for multicollinearity, and conclude there are no multicollineared predictors.
 
 Use our new data set, we test for the effect of GS and RI on COST using several different ways. We fit the models using training data which is a subset of the new data set, and test for how good the model predicts COST using test data which are the observations not included training data. The results from all methods agree that GS has a negative effect on COST. Linear, LASSO, and ridge regression show that small RI will lower COST and big RI will increase COST. Tree method shows that RI with smaller deviance from its mean has lower COST.
 (1) Stepwise Selection & Best Subsets
-Forward selection, backward selection, and best subsets method yield the same best model: COST is depended on RXPM, GS, and RInew2. Since the quadratic term RInew2 is included, we also need to include RInew in the model. The model using these methods is 
-COST=1.328+0.0231*RXPM-1.85*10^(-4)*GS^2-0.0126*RInew+1.644*RInew2
+Forward selection, backward selection, and best subsets method yield the same best model: COST is depended on RXPM, GS, and RInew2 (Figure 6). Since the quadratic term RInew2 is included, we also need to include RInew in the model. The model using these methods is 
+COST=1.328+0.0231*RXPM-1.85*10^(-4)*GS^2-0.0126*RInew+1.644*RInew2 (Table 3)
 After some algebraic steps, the model becomes
 COST=1.4990.0231*RXPM-0.0136*GS-0.0732*sqrt(RI)+1.644*RI
-Holding other variables the same, we make a plot of how COST change with different values of RI. We can see that at the COST first decreases and then increases as RI increase, and RI=5.0 the sign of first derivative of the curve changes. The maximum value of RI such that RI has a negative effect on COST is when RI=19.8.
+Holding other variables the same, we make a plot of how COST change with different values of RI (Figure 7). We can see that at the COST first decreases and then increases as RI increase, and RI=5.0 the sign of first derivative of the curve changes. The maximum value of RI such that RI has a negative effect on COST is when RI=19.8.
 
 (1)	LASSO regression
 We also use LASSO to fit the model. LASSO selects 6 variables as significant predictors of COST. The best LASSO model is 
@@ -25,7 +25,7 @@ COST=1.610 + 0.0185*RXPM – 1.678*10^(-4) GS^2 – 4.400*10^(-3) RInew – 9.38
 This is equivalent to 
 COST=1.772 + 0.0185*RXPM – 0.0130 GS – 0.0534 sqrt(RI) – 9.383 *10^(-3) *AGE + 2.870 *10^(-6)* sqrt(MM) + 0.0135 RI
 
-GS has negative coefficient in LASSO regression meaning that control for other parameters, GS has negative effect on COST. The plot for COST change at different values of RI follows the same trend as in linear model case, with maximum value of RI that has negative effect on COST being 15.6, and when RI=3.9 we obtain minimum COST holding other variables the same.
+GS has negative coefficient in LASSO regression meaning that control for other parameters, GS has negative effect on COST. The plot for COST change at different values of RI follows the same trend as in linear model case, with maximum value of RI that has negative effect on COST being 15.6, and when RI=3.9 we obtain minimum COST holding other variables the same (Figure 8).
 
 (2)	Ridge regression
 Ridge regression yields the following model. Because Ridge regression tends to include all variables, the model contains all variables.
@@ -34,10 +34,10 @@ COST=1.515 + 0.0160*RXPM – 1.368*10^(-4) GS^2 –7.290*10^(-3) RInew + 0.0224 
 The model is equivalent to 
 COST=1.686 + 0.0160*RXPM – 0.0170 GS –0.0618 sqrt(RI) + 0.0224 * log(COPAY)– 0.0128*AGE + 2.27 10^(-3)F + 2.419 *10^(-5) * sqrt(MM) + 0.0150 RI
 
-Increase in GS, ceteris paribus, is associated with decrease in COST. When RI is within 0 to 16.9, RI has negative effect on COST, with minimum COST reached at RI=4.2. Otherwise when RI is greater than 16.9, it has positive effect on COST.
+Increase in GS, ceteris paribus, is associated with decrease in COST. The plot shows that when RI is within 0 to 16.9, RI has negative effect on COST, with minimum COST reached at RI=4.2. Otherwise when RI is greater than 16.9, it has positive effect on COST (Figure 9).
 
 (4) Regression Trees
-Finally, we fitted trees to the model. We first build a single tree model. We prune the tree and get the result as follows: The tree has three terminal nodes. GS is the most important factor in determine cost, lower GS (GS^2 < 1406.5) may cause higher cost (1.338), higher GS (GS^2 > 1406.5) will lead to lower cost. Given GS is high, RI^2 will affect the cost mostly. RI closer to its mean ((sqrt(RI)-mean(sqrt(RI)))^2 < 0.898) tend to lead to a lower cost (1.098), otherwise, the cost will be higher(1.211).
+Finally, we fitted trees to the model (Figure 10). We first build a single tree model. We prune the tree and get the result as follows: The tree has three terminal nodes. GS is the most important factor in determine cost, lower GS (GS^2 < 1406.5) may cause higher cost (1.338), higher GS (GS^2 > 1406.5) will lead to lower cost. Given GS is high, RI^2 will affect the cost mostly. RI closer to its mean ((sqrt(RI)-mean(sqrt(RI)))^2 < 0.898) tend to lead to a lower cost (1.098), otherwise, the cost will be higher(1.211).
 
 To avoid overfitting, we predict COST of each observation in test data for each method and calculate mean squared error (MSE). 
 
