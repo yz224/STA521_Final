@@ -68,9 +68,11 @@ title(sub="Figure 2. Plot after Transformation")
 ```
 
 ```{r,echo=FALSE}
-par(mfrow=c(2,2))
+par(mfrow=c(2,2), oma=c(2,0,0,0))
 plot(lm.2)
-title(sub="Figure 3. Checking conditions for full model",outer=TRUE)
+mtext(side=1, "Figure 3. Checking conditions for full model", outer=TRUE)
+
+
 ```
 
 ```{r,echo=FALSE,results='hide',message=FALSE}
@@ -102,9 +104,9 @@ title(sub="Figure 4. Plot after Adding PI")
 ```
 
 ```{r,echo=FALSE}
-par(mfrow=c(2,2))
+par(mfrow=c(2,2), oma=c(2,0,0,0))
 plot(lm.3)
-title(main="",sub="Figure 5. plot of Full Model and PI",outer=TRUE)
+mtext(side=1, "Figure 5. plot of Full Model and PI", outer=TRUE)
 ```
 
 
@@ -113,17 +115,6 @@ title(main="",sub="Figure 5. plot of Full Model and PI",outer=TRUE)
 regfit.full2=regsubsets(COST~.,newdata.train)
 reg.summary2<-summary(regfit.full2)
 reg.summary2$rsq
-par(mfrow=c(2,2))
-plot(reg.summary2$rss ,xlab="Number of Variables ",ylab="RSS",
-type="l")
-plot(reg.summary2$adjr2 ,xlab="Number of Variables ",
-ylab="Adjusted RSq",type="l")
-plot(reg.summary2$cp ,xlab="Number of Variables ",ylab="Cp", type='l')
-
-points(which.min(reg.summary2$cp ),reg.summary2$cp [which.min(reg.summary2$cp )],col="red",cex=2,pch=20)
-plot(reg.summary2$bic ,xlab="Number of Variables ",ylab="BIC",type='l')
-
-points(which.min(reg.summary2$bic ),reg.summary2$bic [which.min(reg.summary2$bic )],col="red",cex=2,pch=20)
 
 
 # Forward Selection
@@ -155,18 +146,14 @@ MSE.st <- mean((y[-train]-pred.st)^2)
 MSE.st
 
 
-ri=seq(0,100,0.1)
-cost=-0.0732*sqrt(ri)+0.01644*ri
-plot(cost~ri)
-max(ri[cost<0])
-ri[which.min(cost)]
+
 ```
 
 
 
 ```{r,echo=FALSE}
 # figure 6, best subset
-par(mfrow=c(2,2))
+par(mfrow=c(2,2), oma=c(2,0,0,0))
 plot(reg.summary2$rss ,xlab="Number of Variables ",ylab="RSS",
 type="l")
 plot(reg.summary2$adjr2 ,xlab="Number of Variables ",
@@ -177,8 +164,17 @@ points(which.min(reg.summary2$cp ),reg.summary2$cp [which.min(reg.summary2$cp )]
 plot(reg.summary2$bic ,xlab="Number of Variables ",ylab="BIC",type='l')
 
 points(which.min(reg.summary2$bic ),reg.summary2$bic [which.min(reg.summary2$bic )],col="red",cex=2,pch=20)
-title(sub="Figure 6. Model Selection using Best Subset")
+mtext(side=1, "Figure 6. Model Selection using Best Subset", outer=TRUE)
 ```
+
+
+```{r,echo=FALSE,results='hide',message=FALSE}
+ri=seq(0,100,0.1)
+cost=-0.0732*sqrt(ri)+0.01644*ri
+max(ri[cost<0])
+ri[which.min(cost)]
+```
+
 
 ```{r,echo=FALSE}
 par(mfrow=c(1,1))
