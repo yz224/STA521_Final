@@ -1,4 +1,5 @@
-In this project, we want to justify whether the Generic Substitute (GS) and Restriction Index (RI) are efficient in controlling drugs costs. We analyze collected data of “COST” (response) and related seven explanatory variables (including GS and RI) with different methods. We conclude that GS has negative effect on COST, and small RI is associated with lower COST, while large RI is associated with higher COST.
+In this project, we want to justify whether the Generic Substitute (GS) and Restriction Index (RI) are efficient in controlling drugs costs. We explore the relationship between COST and seven predictors (including GS and RI) using the data from 29 health plans.
+We conclude that GS has negative effect on COST, and small RI is associated with lower COST, while large RI is associated with higher COST.
 
 The histograms of all variables show skewness in GS, RI, COPAY and MM. Since in regression, all the independent variables need to be normally distributed, we use best Box-Cox transformation for each independent variable, and transform response variable accordingly. We will use GS^2, sqrt(RI), log(COPAY), and sqrt(MM) in our analysis. Log likelihood ratio test shows that each of these transformations is necessary at 0.05 level. All other variables will stay the same. 
 
@@ -38,7 +39,18 @@ Increase in GS, ceteris paribus, is associated with decrease in COST. When RI is
 
 (4) Regression Trees
 Finally, we fitted trees to the model. We first build a single tree model. We prune the tree and get the result as follows: The tree has three terminal nodes. GS is the most important factor in determine cost, lower GS (GS^2 < 1406.5) may cause higher cost (1.338), higher GS (GS^2 > 1406.5) will lead to lower cost. Given GS is high, RI^2 will affect the cost mostly. RI closer to its mean ((sqrt(RI)-mean(sqrt(RI)))^2 < 0.898) tend to lead to a lower cost (1.098), otherwise, the cost will be higher(1.211).
-Also, for better prediction, we try Bagging and randomForest method. After test, Bagging seems to have the best predict result in our analysis. (MSE = 0.0006)
-In the bagging method, we have built and average a total of 500 trees. The importance level shows that GS^2 and poly(RI,2) are the most important variables.
+
+To avoid overfitting, we predict COST of each observation in test data for each method and calculate mean squared error (MSE). 
+
+In order to find the best prediction model of COST, we also use bagging and BMA methods. In the bagging method, we have built and average a total of 500 trees. The importance level shows that GS^2 and poly(RI,2) are the most important variables. BMA selects 23 models that posterior probabilities are not 0, andwe use the weighted average of coefficient of the predictors in each model to predict COST. Among all methods, bagging has the best predict result in our analysis(MSE = 0.0006).
+
+Method	Out of Sample MSE
+Stepwise selection	0.0071
+LASSO	0.0050
+Ridge	0.0035
+Bagging	0.0006
+BMA	0.0066
+
+
 
 
