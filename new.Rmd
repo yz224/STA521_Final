@@ -1,0 +1,265 @@
+---
+output: html_document
+---
+
+```{r,echo=FALSE,results='hide',message=FALSE}
+library(gam)
+library(MASS)
+library(car)
+library(ISLR)
+library(leaps)
+library(glmnet)
+library(boot)
+data <- read.table("costs.txt",header=T)
+data <- data[1:8]
+
+panel.hist <- function(x, ...)
+{
+    usr <- par("usr"); on.exit(par(usr))
+    par(usr = c(usr[1:2], 0, 1.5) )
+    h <- hist(x, plot = FALSE)
+    breaks <- h$breaks; nB <- length(breaks)
+    y <- h$counts; y <- y/max(y)
+    rect(breaks[-nB], 0, breaks[-1], y, col = "cyan", ...)
+}
+
+panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
+{
+    usr <- par("usr"); on.exit(par(usr))
+    par(usr = c(0, 1, 0, 1))
+    r <- abs(cor(x, y))
+    txt <- format(c(r, 0.123456789), digits = digits)[1]
+    txt <- paste0(prefix, txt)
+    if(missing(cex.cor)) cex.cor <- 0.8/strwidth(txt)
+    text(0.5, 0.5, txt, cex = cex.cor * r)
+}
+```
+
+```{r,echo=FALSE}
+pairs(data,lower.panel = panel.smooth, upper.panel = panel.cor, diag.panel = panel.hist)
+title(sub="Figure 1. Plot of Raw Data")
+```
+
+```{r,echo=FALSE,results='hide',message=FALSE}
+p1 <- powerTransform(data)
+summary(p1)
+coef(p1,round=T)
+test=data
+test$GS=test$GS^2
+test$RI=sqrt(test$RI)
+test$COPAY=log(test$COPAY)
+test$MM=sqrt(test$MM)
+train=sample(1:nrow(data), nrow(data)-9)
+p11 <- powerTransform(test)
+p2 <-powerTransform(lm(COST~., test))
+summary(p11)
+summary(p2)
+coef(p11,round=T)
+coef(p2,round=T)
+
+lm.2 <- lm(COST~.,data=test)
+summary(lm.2)
+vif(lm.2)
+```
+
+```{r,echo=FALSE}
+pairs(test,lower.panel = panel.smooth, upper.panel = panel.cor, diag.panel = panel.hist)
+title(sub="Figure 2. Plot after Transformation")
+```
+
+```{r,echo=FALSE}
+par(mfrow=c(2,2))
+plot(lm.2)
+title(sub="Figure 3. Checking conditions for full model",outer=TRUE)
+```
+
+```{r,echo=FALSE,results='hide',message=FALSE}
+newdata=test
+newdata$RI=newdata$RI-mean(newdata$RI)
+#newdata$MM=newdata$MM-mean(newdata$MM)
+newdata$RI2=newdata$RI^2
+#newdata$MM2=newdata$MM^2
+set.seed(100)
+train=sample(1:nrow(newdata), nrow(newdata)-9)
+newdata.train=newdata[train,]
+newdata.test=newdata[-train,]
+y <- newdata[,1]
+x <- as.matrix(newdata[,-1])
+y.train <- newdata.train[,1]
+x.train <- as.matrix(newdata.train[,-1])
+y.test <- newdata.test[,1]
+x.test <- as.matrix(newdata.test[,-1])
+
+lm.3 <- lm(COST~.,newdata)
+vif(lm.3)
+summary(lm.3)
+```
+
+```{r,echo=FALSE}
+pairs(newdata,lower.panel = panel.smooth, upper.panel = panel.cor, diag.panel = panel.hist)
+title(sub="Figure 4. Plot after Adding PI")
+
+```
+
+```{r,echo=FALSE}
+par(mfrow=c(2,2))
+plot(lm.3)
+title(main="",sub="Figure 5. plot of Full Model and PI",outer=TRUE)
+```
+
+
+```{r,echo=FALSE,results='hide',message=FALSE}
+# Full subsets selection
+regfit.full2=regsubsets(COST~.,newdata.train)
+reg.summary2<-summary(regfit.full2)
+reg.summary2$rsq
+par(mfrow=c(2,2))
+plot(reg.summary2$rss ,xlab="Number of Variables ",ylab="RSS",
+type="l")
+plot(reg.summary2$adjr2 ,xlab="Number of Variables ",
+ylab="Adjusted RSq",type="l")
+plot(reg.summary2$cp ,xlab="Number of Variables ",ylab="Cp", type='l')
+
+points(which.min(reg.summary2$cp ),reg.summary2$cp [which.min(reg.summary2$cp )],col="red",cex=2,pch=20)
+plot(reg.summary2$bic ,xlab="Number of Variables ",ylab="BIC",type='l')
+
+points(which.min(reg.summary2$bic ),reg.summary2$bic [which.min(reg.summary2$bic )],col="red",cex=2,pch=20)
+
+
+# Forward Selection
+regfit.fwd <- regsubsets(COST~.,data=newdata.train,nvmax=9,method="forward")
+summary(regfit.fwd)
+which.min(summary(regfit.fwd)$cp)
+which.min(summary(regfit.fwd)$bic)
+which.max(summary(regfit.fwd)$adjr2)
+summary(regfit.fwd)$which[5,]
+
+#Backward Selection
+regfit.bwd <- regsubsets(COST~.,data=newdata.train,nvmax=9,method="backward")
+summary(regfit.bwd)
+which.min(summary(regfit.bwd)$cp)
+which.min(summary(regfit.bwd)$bic)
+which.max(summary(regfit.bwd)$adjr2)
+summary(regfit.bwd)$which[5,]
+
+coef(regfit.full2 ,3)
+coef(regfit.fwd ,3)
+coef(regfit.bwd ,3)
+# The result of full subsets, forward selection and backward selection are same.
+lm.subset <- lm(COST ~ RXPM + GS + RI2 + RI , data=newdata.train)
+summary(lm.subset)
+
+pred.st <- predict(lm.subset,newdata.test)
+
+MSE.st <- mean((y[-train]-pred.st)^2)
+MSE.st
+
+
+ri=seq(0,100,0.1)
+cost=-0.0732*sqrt(ri)+0.01644*ri
+plot(cost~ri)
+max(ri[cost<0])
+ri[which.min(cost)]
+```
+
+
+
+```{r,echo=FALSE}
+# figure 6, best subset
+par(mfrow=c(2,2))
+plot(reg.summary2$rss ,xlab="Number of Variables ",ylab="RSS",
+type="l")
+plot(reg.summary2$adjr2 ,xlab="Number of Variables ",
+ylab="Adjusted RSq",type="l")
+plot(reg.summary2$cp ,xlab="Number of Variables ",ylab="Cp", type='l')
+
+points(which.min(reg.summary2$cp ),reg.summary2$cp [which.min(reg.summary2$cp )],col="red",cex=2,pch=20)
+plot(reg.summary2$bic ,xlab="Number of Variables ",ylab="BIC",type='l')
+
+points(which.min(reg.summary2$bic ),reg.summary2$bic [which.min(reg.summary2$bic )],col="red",cex=2,pch=20)
+title(sub="Figure 6. Model Selection using Best Subset")
+```
+
+```{r,echo=FALSE}
+par(mfrow=c(1,1))
+plot(cost~ri,xlab="RI",ylab="Change in Cost")
+title(sub="Figure 7. Plot of RI versus Change in Cost for Best Subset Model")
+```
+
+
+```{r,echo=FALSE,results='hide',message=FALSE}
+#LASSO
+#par(mfrow=c(1,1))
+
+
+grid=10^seq(10,-3,length=1000)
+lasso.mod <- glmnet(x.train,y.train,alpha=1)
+#plot(lasso.mod)
+
+cv.out <- cv.glmnet(x.train,y.train,alpha=1,grouped=F)
+#plot(cv.out)
+bestlam <- cv.out$lambda.min
+
+out <- glmnet(x.train,y.train,alpha=1,lambda=grid)
+lasso.coef = predict(out,type="coefficients",s=bestlam)
+cv.err.lasso = cv.out$cvm[cv.out$lambda==cv.out$lambda.min]
+lasso.pred <- predict(out,s=bestlam,x.test)
+lasso.pred
+MSE.lasso <- mean((lasso.pred-y[-train])^2)
+
+# RIDGE
+ridge.mod=glmnet(x.train,y.train,alpha=0,lambda=grid)
+#plot(ridge.mod)
+cv.rid <- cv.glmnet(x.train,y.train,alpha=0,grouped=F)
+#plot(cv.rid)
+bestlam.r <- cv.rid$lambda.min
+
+out.r <- glmnet(x.train,y.train,alpha=0,lambda=grid)
+ridge.coef = predict(out.r,type="coefficients",s=bestlam.r)
+cv.err.ridge = cv.rid$cvm[cv.rid$lambda==cv.rid$lambda.min]
+ridge.pred <- predict(out.r,s=bestlam.r,x.test)
+MSE.ridge <- mean((ridge.pred-y[-train])^2)
+
+lasso.coef
+ridge.coef
+
+MSE.lasso
+MSE.ridge
+
+
+costlas=-0.0534*sqrt(ri)+0.0135*ri
+
+max(ri[costlas<0])
+ri[which.min(costlas)]
+
+
+costrid=-0.0618*sqrt(ri)+0.0150*ri
+max(ri[costrid<0])
+ri[which.min(costrid)]
+```
+
+
+```{r,echo=FALSE}
+plot(costlas~ri,xlab="RI",ylab="Change in Cost")
+title(sub="Figure 8. Plot of RI versus Change in Cost for LASSO")
+```
+
+```{r,echo=FALSE}
+plot(costrid~ri,xlab="RI",ylab="Change in Cost")
+title(sub="Figure 9. Plot of RI versus Change in Cost for Ridge")
+```
+
+
+
+```{r,echo=FALSE,results='hide',message=FALSE}
+library(tree)
+library(randomForest)
+treemodel=tree(COST~., newdata.train)
+summary(treemodel)
+```
+
+```{r,echo=FALSE}
+plot(treemodel)
+text(treemodel,pretty=0)
+title(sub="Figure 10. Tree Plot")
+```
