@@ -17,3 +17,14 @@ COST=1.328+0.0231*RXPM-1.85*10^(-4)*GS^2-0.0126*RInew+1.644*RInew2
 After some algebraic steps, the model becomes
 COST=1.4990.0231*RXPM-0.0136*GS-0.0732*sqrt(RI)+1.644*RI
 Holding other variables the same, we make a plot of how COST change with different values of RI. We can see that at the COST first decreases and then increases as RI increase, and RI=5 the sign of first derivative of the curve changes. The maximum value of RI such that RI has a negative effect on COST is when RI=19.
+
+(2)	LASSO regression
+We also use LASSO to fit the model. LASSO selects 6 variables as significant predictors of COST. The best LASSO model is 
+COST=1.610 + 0.0185*RXPM – 1.678*10^(-4) GS^2 – 4.40010^(-3) RInew – 9.383 *AGE + 2.870 * sqrt(MM) + 0.0135 RInew2
+
+This is equivalent to 
+COST=1.772 + 0.0185*RXPM – 0.0130 GS – 0.0534 sqrt(RI) – 9.383 *AGE + 2.870 * sqrt(MM) + 0.0135 RI
+
+GS has negative coefficient in LASSO regression meaning that control for other parameters, GS has negative effect on COST. The plot for COST change at different values of RI follows the same trend as in linear model case, with maximum value of RI that has negative effect on COST being 15, and when RI=4 we obtain minimum COST holding other variables the same.
+
+
