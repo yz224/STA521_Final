@@ -27,4 +27,9 @@ COST=1.772 + 0.0185*RXPM – 0.0130 GS – 0.0534 sqrt(RI) – 9.383 *AGE + 2.87
 
 GS has negative coefficient in LASSO regression meaning that control for other parameters, GS has negative effect on COST. The plot for COST change at different values of RI follows the same trend as in linear model case, with maximum value of RI that has negative effect on COST being 15, and when RI=4 we obtain minimum COST holding other variables the same.
 
+(3)   Regression Trees
+Finally, we fitted trees to the model. 
+For intepretation, we first build a single tree model. We prune the tree and get the result as follows: The tree has three terminal nodes. GS is the most important factor in determine cost, lower GS (GS^2 < 1406.5) may cause higher cost (1.338), higher GS (GS^2 > 1406.5) will lead to lower cost. Given GS is high, RI^2 will affact the cost mostly. RI closer to its mean ((RI-mean(RI))^2 < 0.898) tend to lead to a lower cost (1.098), otherwise, the cost will be higher(1.211).
+Also, for better prediction, we tried Baggin and randomForest method. After test, Bagging seems to have the best predict result in our analysis. (MLE = 0.0006)
+In the bagging method, we have built and average a total of 500 trees. The importance level showed that GS^2, poly(RI,2) are most important variables.
 
