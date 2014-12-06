@@ -1,5 +1,4 @@
 In this project, we want to justify whether the Generic Substitute (GS) and Restriction Index (RI) are efficient in controlling drugs costs. We explore the relationship between COST and seven predictors (including GS and RI) using the data from 29 health plans.
-We conclude that GS has negative effect on COST, and small RI is associated with lower COST, while large RI is associated with higher COST.
 
 The histograms of all variables show skewness in GS, RI, COPAY and MM. Since in regression, all the independent variables need to be normally distributed, we use best Box-Cox transformation for each independent variable, and transform response variable accordingly. We will use GS^2, sqrt(RI), log(COPAY), and sqrt(MM) in our analysis. Log likelihood ratio test shows that each of these transformations is necessary at 0.05 level. All other variables will stay the same. 
 
@@ -17,7 +16,7 @@ Forward selection, backward selection, and best subsets method yield the same be
 COST=1.328+0.0231*RXPM-1.85*10^(-4)*GS^2-0.0126*RInew+1.644*RInew2
 After some algebraic steps, the model becomes
 COST=1.4990.0231*RXPM-0.0136*GS-0.0732*sqrt(RI)+1.644*RI
-Holding other variables the same, we make a plot of how COST change with different values of RI. We can see that at the COST first decreases and then increases as RI increase, and RI=5 the sign of first derivative of the curve changes. The maximum value of RI such that RI has a negative effect on COST is when RI=19.
+Holding other variables the same, we make a plot of how COST change with different values of RI. We can see that at the COST first decreases and then increases as RI increase, and RI=5.0 the sign of first derivative of the curve changes. The maximum value of RI such that RI has a negative effect on COST is when RI=19.8.
 
 (1)	LASSO regression
 We also use LASSO to fit the model. LASSO selects 6 variables as significant predictors of COST. The best LASSO model is 
@@ -26,7 +25,7 @@ COST=1.610 + 0.0185*RXPM – 1.678*10^(-4) GS^2 – 4.400*10^(-3) RInew – 9.38
 This is equivalent to 
 COST=1.772 + 0.0185*RXPM – 0.0130 GS – 0.0534 sqrt(RI) – 9.383 *10^(-3) *AGE + 2.870 *10^(-6)* sqrt(MM) + 0.0135 RI
 
-GS has negative coefficient in LASSO regression meaning that control for other parameters, GS has negative effect on COST. The plot for COST change at different values of RI follows the same trend as in linear model case, with maximum value of RI that has negative effect on COST being 15, and when RI=4 we obtain minimum COST holding other variables the same.
+GS has negative coefficient in LASSO regression meaning that control for other parameters, GS has negative effect on COST. The plot for COST change at different values of RI follows the same trend as in linear model case, with maximum value of RI that has negative effect on COST being 15.6, and when RI=3.9 we obtain minimum COST holding other variables the same.
 
 (2)	Ridge regression
 Ridge regression yields the following model. Because Ridge regression tends to include all variables, the model contains all variables.
@@ -35,7 +34,7 @@ COST=1.515 + 0.0160*RXPM – 1.368*10^(-4) GS^2 –7.290*10^(-3) RInew + 0.0224 
 The model is equivalent to 
 COST=1.686 + 0.0160*RXPM – 0.0170 GS –0.0618 sqrt(RI) + 0.0224 * log(COPAY)– 0.0128*AGE + 2.27 10^(-3)F + 2.419 *10^(-5) * sqrt(MM) + 0.0150 RI
 
-Increase in GS, ceteris paribus, is associated with decrease in COST. When RI is within 0 to 16, RI has negative effect on COST, with minimum COST reached at RI=4. Otherwise when RI is greater than 16, it has positive effect on COST.
+Increase in GS, ceteris paribus, is associated with decrease in COST. When RI is within 0 to 16.9, RI has negative effect on COST, with minimum COST reached at RI=4.2. Otherwise when RI is greater than 16.9, it has positive effect on COST.
 
 (4) Regression Trees
 Finally, we fitted trees to the model. We first build a single tree model. We prune the tree and get the result as follows: The tree has three terminal nodes. GS is the most important factor in determine cost, lower GS (GS^2 < 1406.5) may cause higher cost (1.338), higher GS (GS^2 > 1406.5) will lead to lower cost. Given GS is high, RI^2 will affect the cost mostly. RI closer to its mean ((sqrt(RI)-mean(sqrt(RI)))^2 < 0.898) tend to lead to a lower cost (1.098), otherwise, the cost will be higher(1.211).
@@ -52,5 +51,9 @@ Bagging	0.0006
 BMA	0.0066
 
 
+Conclusion
+Using the given data, we conclude that GS has negative effect on COST, and small RI is associated with lower COST, while large RI is associated with higher COST. Thus, in order to reduce the daily prescription drug cost, the health insurance company should use higher percentage of general substitution, and control Restrictiveness Index in a low range within 0 to 15.6 (a conservative interval such that for within this range, all models agree that RI has negative effect on drug cost), and the ideal Restrictive Index to reduce drug cost is between 3.9 and 5.
+
+Discussion
 
 
